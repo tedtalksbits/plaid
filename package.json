@@ -1,0 +1,46 @@
+{
+  "name": "plaid",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cross-env NODE_ENV=production node dist/index.js",
+    "start-dev": "cross-env NODE_ENV=development nodemon dist/index.js",
+    "watch": "tsc -w",
+    "dev": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold\" \"npm run watch\" \"npm run start-dev\"",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.1",
+    "cookie-parser": "^1.4.6",
+    "cookie-session": "^2.0.0",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "moment": "^2.29.4",
+    "mysql2": "^3.5.2",
+    "plaid": "^15.0.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/cookie-parser": "^1.4.3",
+    "@types/cookie-session": "^2.0.44",
+    "@types/cors": "^2.8.13",
+    "@types/crypto-js": "^4.1.1",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.17",
+    "@types/mysql": "^2.15.21",
+    "@types/node": "^20.4.2",
+    "@types/uuid": "^9.0.2",
+    "concurrently": "^8.2.0",
+    "cross-env": "^7.0.3",
+    "nodemon": "^3.0.1",
+    "typescript": "^5.1.6"
+  }
+}
