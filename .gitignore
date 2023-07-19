@@ -1,5 +1,8 @@
 node_modules
+# ignore all .env except for .env.example
 .env
+.env.*
+!.env.example
 dist
 
 src/config/index.ts

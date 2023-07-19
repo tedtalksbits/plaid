@@ -153,3 +153,34 @@ export const getTransactions = async (req: Request, res: Response) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+export const getAccounts = async (req: Request, res: Response) => {
+  const authUser = req.session?.user;
+
+  const [user] = await sqlQuery.select('users', {
+    id: authUser?.user_id,
+    username: authUser?.username,
+  });
+
+  if (!user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { access_token: ACCESS_TOKEN } = user;
+
+  if (!ACCESS_TOKEN) {
+    return res.status(400).json({ error: 'Missing access token' });
+  }
+
+  const config = {
+    access_token: ACCESS_TOKEN,
+  };
+
+  try {
+    const accountsResponse = await client.accountsGet(config);
+    return res.json(accountsResponse.data);
+  } catch (error) {
+    console.log('getAccounts() catch error: ' + error);
+    return res.status(500).json({ error: error.message });
+  }
+};

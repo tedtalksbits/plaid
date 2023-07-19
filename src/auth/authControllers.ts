@@ -111,8 +111,47 @@ export const authenticateUser = async (req: Request, res: Response) => {
         id: user.id,
       }
     );
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _, access_token: __, ...userWithoutPassword } = user;
     return res.status(200).json(userWithoutPassword);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error });
+  }
+};
+
+export const logoutUser = async (req: Request, res: Response) => {
+  try {
+    req.session = null as any;
+    return res.status(200).json({ message: 'Successfully logged out' });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error });
+  }
+};
+
+export const getUser = async (req: Request, res: Response) => {
+  try {
+    const authUser = req.session?.user;
+    if (!authUser) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const [user] = await sqlQuery.select<Partial<UserType>>(TABLE_NAME, {
+      id: authUser?.user_id,
+      username: authUser?.username,
+    });
+
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { password: _, access_token: __, ...userWithoutPassword } = user;
+    const userResponse = {
+      ...userWithoutPassword,
+      isAuthenticated: true,
+      hasAccessToken: !!user.access_token,
+    };
+    return res.status(200).json(userResponse);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error });
