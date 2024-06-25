@@ -84,7 +84,7 @@ export const authenticateUser = async (req: Request, res: Response) => {
       user.password,
       process.env.CRYPTO_SECRET
     ).toString(CryptoJS.enc.Utf8);
-
+    console.log('decryptedPassword', decryptedPassword);
     if (decryptedPassword !== password) {
       console.log('Invalid username or password');
       return res.status(401).json({ message: 'Invalid username or password' });

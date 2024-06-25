@@ -2,6 +2,10 @@ import { UserType } from 'src/user/userType';
 import db from './mysql';
 
 export const sqlQuery = {
+  async query<T extends Record<string, any>>(query: string, values: any[]) {
+    const [result] = await db.execute(query, values);
+    return result as T[] | any[];
+  },
   async save<T extends Record<string, any>>(tableName: string, data: T) {
     const keys = Object.keys(data);
     const values = Object.values(data);
@@ -22,12 +26,12 @@ export const sqlQuery = {
       `SELECT * FROM ${tableName} WHERE ${keys.join(' = ? AND ')} = ?`,
       values
     );
-    return result as UserType[];
+    return result as any[];
   },
 
   async selectAll(tableName: string) {
     const [result] = await db.execute(`SELECT * FROM ${tableName}`);
-    return result as UserType[];
+    return result as any[];
   },
 
   async update<T extends Record<string, any>>(

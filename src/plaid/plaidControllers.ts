@@ -7,6 +7,7 @@ import {
   Products,
   PlaidEnvironments,
   CountryCode,
+  AccountBase,
 } from 'plaid';
 import { UserType } from 'src/user/userType';
 import moment from 'moment';
@@ -178,6 +179,45 @@ export const getAccounts = async (req: Request, res: Response) => {
 
   try {
     const accountsResponse = await client.accountsGet(config);
+    // I want to keep track of account balances. I will update the database with the current balance but only once a day.
+
+    const accounts = accountsResponse.data.accounts;
+
+    for (const account of accounts) {
+      const { account_id, balances } = account;
+      const { current } = balances;
+      const [accountBalance] = await sqlQuery.query<AccountBase>(
+        'SELECT * FROM account_balances WHERE account_id = ? AND user_id = ? AND DATE(date) = CURDATE()',
+        [account_id, authUser?.user_id]
+      );
+
+      if (!accountBalance) {
+        await sqlQuery.save('account_balances', {
+          user_id: authUser?.user_id,
+          account_id,
+          balance: current,
+          official_name: account.official_name,
+        });
+      }
+      // update if balance changed during the day - could be tricky to check because balance is stored as a string in the database
+      else {
+        const { balance } = accountBalance;
+        if (Number(balance) !== current) {
+          await sqlQuery.update<AccountBase>(
+            'account_balances',
+            {
+              balance: current,
+            },
+            {
+              account_id,
+              user_id: authUser?.user_id,
+              date: moment().format('YYYY-MM-DD'),
+            }
+          );
+        }
+      }
+    }
+
     return res.json(accountsResponse.data);
   } catch (error) {
     console.log('getAccounts() catch error: ' + error);
